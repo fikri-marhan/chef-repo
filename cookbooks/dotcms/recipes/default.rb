@@ -89,19 +89,20 @@ template "#{extract_path}/dotserver/tomcat/conf/server.xml" do
 		})
 end
 
+bash "restart_dotcms" do
+  code <<-EOH
+    cd #{extract_path}/dotserver
+    ./bin/shutdown.sh
+    rm -rf /tmp/dotserver.pid
+    ./bin/startup.sh
+    EOH
+  only_if { ::File.exists?("/tmp/dotserver.pid") }
+end
+
 bash "start_dotcms" do
   code <<-EOH
     cd #{extract_path}/dotserver
     ./bin/startup.sh
     EOH
   not_if { ::File.exists?("/tmp/dotserver.pid") }
-end
-
-bash "restart_dotcms" do
-  code <<-EOH
-    cd #{extract_path}/dotserver
-    ./bin/shutdown.sh
-    ./bin/startup.sh
-    EOH
-  only_if { ::File.exists?("/tmp/dotserver.pid") }
 end
